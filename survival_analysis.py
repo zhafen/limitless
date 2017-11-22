@@ -45,7 +45,17 @@ def inverse_calc_number_at_risk(d, c):
 ########################################################################
 
 def kaplan_meier_estimator(time, t, d, Y):
-  'From Kaplan&Meier1958'
+  '''From Kaplan&Meier1958
+
+  Args:
+    time (float) : Specific time at which you want the Survival function.
+    t (array-like) : Time values for data points.
+    d (array-like) : Actual detections.
+    Y (array-like) : Actual detections as well as lower limits.
+
+  Returns:
+    survival_fn_estimate (float) : Survival function at specified value.
+  '''
   
   # Calculate the fraction
   frac_remaining = 1. - d/Y
@@ -53,19 +63,31 @@ def kaplan_meier_estimator(time, t, d, Y):
   # No deaths yet
   if time <= t[0]:
     return 1.
-  elif time >= t[-1]:
   # If the time value is greater than all the times, return the total product
+  elif time >= t[-1]:
     return frac_remaining.prod()
   
   # The index of the first time that's greater than the specified time, minus one
   time_index = next(i for i, value in enumerate(t) if value > time) - 1
+
+  survival_fn_estimate = frac_remaining[:time_index].prod()
   
-  return frac_remaining[:time_index].prod()
+  return survival_fn_estimate
 
 ########################################################################
 
 def inverse_kaplan_meier_estimator(time, t, d, W):
-  'Like the Kaplan-Meier estimator, but uses left censored data and calculates the CDF instead.'
+  '''Like the Kaplan-Meier estimator, but uses left censored data and calculates the CDF instead.
+
+  Args:
+    time (float) : Specific time at which you want the Survival function.
+    t (array-like) : Time values for data points.
+    d (array-like) : Actual detections.
+    Y (array-like) : Actual detections as well as lower limits.
+
+  Returns:
+    cdf_estimate (float) : Survival function at specified value.
+  '''
 
   # Calculate the fraction
   frac_remaining = 1. - d/W
@@ -73,14 +95,16 @@ def inverse_kaplan_meier_estimator(time, t, d, W):
   # If at the top
   if time >= t[-1]:
     return 1.
-  elif time <= t[0]:
   # If the time value is less than all the times, return the total product
+  elif time <= t[0]:
     return 0.
   
   # The index of the first time that's greater than the specified time, minus one
   time_index = next(i for i, value in enumerate(t) if value > time) - 1
   
-  return frac_remaining[time_index:].prod()
+  cdf_estimate = frac_remaining[time_index:].prod()
+
+  return cdf_estimate
 
 ########################################################################
 
